@@ -4,5 +4,6 @@ public enum Oposion {
     POLICIA,
     BOMBERO,
     MAESTRO,
-    JUEZ
+    JUEZ,
+    NINGUNA
 }

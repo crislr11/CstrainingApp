@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User implements UserDetails {
 
     @Id
@@ -29,8 +30,10 @@ public class User implements UserDetails {
     private String token;
 
     @Enumerated(EnumType.STRING)
-    private Oposion oposionType;
+    private Oposion oposion;
 
+    private int creditos;
+    private boolean pagado;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -39,7 +42,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
