@@ -28,11 +28,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(publicEndPoints()).permitAll()
-                                .anyRequest().authenticated())
-                .sessionManagement(sess ->
-                        sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(publicEndPoints()).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -40,8 +41,7 @@ public class SecurityConfig {
     }
 
     private RequestMatcher publicEndPoints() {
-        return new OrRequestMatcher( new AntPathRequestMatcher("/admin/sinProteger"),
-               new AntPathRequestMatcher("/api/auth/**"));
+        return new OrRequestMatcher(new AntPathRequestMatcher("/api/auth/**"));
     }
 
 }

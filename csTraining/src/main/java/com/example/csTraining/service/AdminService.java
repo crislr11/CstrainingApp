@@ -17,4 +17,5 @@ public interface AdminService {
     void toggleUserStatus(Long id);
 
     void updateUserCredits(Long id, int newCredits);
+
 }

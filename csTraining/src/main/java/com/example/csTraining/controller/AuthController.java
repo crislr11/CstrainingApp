@@ -20,26 +20,33 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> registro(@RequestBody RegisterRequest request){
-
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<AuthResponse> registro(@RequestBody RegisterRequest request) {
+        try {
+            AuthResponse authResponse = authService.register(request);
+            return ResponseEntity.ok(authResponse);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new AuthResponse("Error al registrar usuario: " + ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse("Error inesperado: " + ex.getMessage()));
+        }
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthenticationRequest request) {
         try {
-            // Intentar autenticar y devolver el token JWT
+
             return ResponseEntity.ok(authService.authenticate(request));
         } catch (UsernameNotFoundException ex) {
             // Si no se encuentra el usuario
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new AuthResponse("Usuario no encontrado: " + ex.getMessage()));
         } catch (RuntimeException ex) {
-            // Si las credenciales son inválidas u ocurre otro error
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new AuthResponse("Credenciales inválidas: " + ex.getMessage()));
         } catch (Exception ex) {
-            // Capturar cualquier otro tipo de error
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new AuthResponse("Error inesperado: " + ex.getMessage()));
         }

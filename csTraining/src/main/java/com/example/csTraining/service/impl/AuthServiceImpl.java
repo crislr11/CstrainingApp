@@ -34,7 +34,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse authenticate(AuthenticationRequest request) {
-        // Intentamos autenticar al usuario con Spring Security.
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -43,24 +42,28 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
 
-            // Una vez autenticado, recuperamos el usuario
             User user = (User) authentication.getPrincipal();
 
-            // Generamos el JWT token para el usuario autenticado
+            if (!user.isActive()) {
+                throw new RuntimeException("Tu cuenta no está activada. Por favor, espera a que el administrador te active.");
+            }
+
             var jwtToken = jwtService.generateJwtToken(user);
 
-            return AuthResponse.builder().token(jwtToken).build();
+            return AuthResponse.builder()
+                    .token(jwtToken)
+                    .nombre(user.getUsername())
+                    .oposicion(user.getOposion().name())
+                    .role(user.getRole().name())
+                    .build();
 
         } catch (BadCredentialsException e) {
-            // Si las credenciales no son válidas, lanzamos una excepción.
             throw new RuntimeException("Credenciales inválidas", e);
         } catch (Exception e) {
-            // Cualquier otro error, lanzamos una excepción genérica.
             e.printStackTrace();
             throw new RuntimeException("Error en el proceso de autenticación", e);
         }
     }
-
 
     @Override
     public AuthResponse register(RegisterRequest registerRequest) {
@@ -68,7 +71,6 @@ public class AuthServiceImpl implements AuthService {
         if (existingUser.isPresent()) {
             throw new RuntimeException("El usuario con este correo ya existe");
         }
-
 
         var user = User.builder()
                 .username(registerRequest.getUsername())
@@ -80,6 +82,12 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
         var jwtToken = jwtService.generateJwtToken(user);
-        return AuthResponse.builder().token(jwtToken).build();
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .nombre(user.getUsername())
+                .oposicion(user.getOposion().name())
+                .role(user.getRole().name())
+                .build();
     }
+
 }
