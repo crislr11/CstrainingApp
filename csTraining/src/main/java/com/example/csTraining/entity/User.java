@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "Usuarios")
 public class User implements UserDetails {
 
     @Id
@@ -30,7 +31,7 @@ public class User implements UserDetails {
     private String token;
 
     @Enumerated(EnumType.STRING)
-    private Oposion oposion;
+    private Oposicion oposicion;
 
     private int creditos;
     private boolean pagado;

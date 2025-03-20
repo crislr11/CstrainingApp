@@ -1,6 +1,6 @@
 package com.example.csTraining.controller.models;
 
-import com.example.csTraining.entity.Oposion;
+import com.example.csTraining.entity.Oposicion;
 import com.example.csTraining.entity.Role;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +24,6 @@ public class RegisterRequest {
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    private Oposion oposion;
+    private Oposicion oposicion;
 
 }

@@ -53,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
             return AuthResponse.builder()
                     .token(jwtToken)
                     .nombre(user.getUsername())
-                    .oposicion(user.getOposion().name())
+                    .oposicion(user.getOposicion().name())
                     .role(user.getRole().name())
                     .build();
 
@@ -77,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(registerRequest.getRole())
-                .oposion(registerRequest.getOposion())
+                .oposicion(registerRequest.getOposicion())
                 .build();
 
         userRepository.save(user);
@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
                 .token(jwtToken)
                 .nombre(user.getUsername())
-                .oposicion(user.getOposion().name())
+                .oposicion(user.getOposicion().name())
                 .role(user.getRole().name())
                 .build();
     }

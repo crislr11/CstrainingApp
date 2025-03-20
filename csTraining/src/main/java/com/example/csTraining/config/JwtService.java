@@ -23,7 +23,7 @@ public class JwtService {
     public String generateJwtToken(UserDetails userDetails) {
         User user = (User) userDetails;
         String nombre = user.getUsername();
-        String oposicion = user.getOposion().name();
+        String oposicion = user.getOposicion().name();
         String role = user.getRole().name();
         return generateToken(userDetails, nombre, oposicion, role);
     }

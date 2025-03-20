@@ -37,8 +37,6 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
-
-
     @Override
     @Transactional
     public User updateUser(Long id, User userDetails) {
@@ -49,7 +47,7 @@ public class AdminServiceImpl implements AdminService {
             user.setUsername(userDetails.getUsername());
             user.setEmail(userDetails.getEmail());
             user.setActive(userDetails.isActive());
-            user.setOposion(userDetails.getOposion());
+            user.setOposicion(userDetails.getOposicion());
             user.setCreditos(userDetails.getCreditos());
             user.setPagado(userDetails.isPagado());
 
