@@ -13,9 +13,12 @@ import jakarta.transaction.Transactional;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 
@@ -31,124 +34,119 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     @Qualifier("userRepository")
     private final UserRepository userRepository;
 
-
-    @Override
     @Transactional
+    @Override
     public Entrenamiento createTraining(Entrenamiento training) {
-        if (training == null) {
-            throw new IllegalArgumentException("El entrenamiento no puede ser nulo");
-        }
-        try {
-            return entrenamientoRepository.save(training);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al crear el entrenamiento: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void deleteTraining(Long id, User user) {
-
-        // Verificar si el usuario tiene permisos para eliminar la clase
-        if (user == null) {
-            throw new SecurityException("Usuario no proporcionado.");
-        }
-
-        boolean isProfessor = user.getRole() == Role.PROFESOR;
-
-        if (user.getRole() != Role.ADMIN && !isProfessor) {
-            throw new SecurityException("No tienes permisos para eliminar esta clase.");
-        }
-
-
-        Entrenamiento entrenamiento = entrenamientoRepository.findById(id)
-                .orElseThrow(() -> new EntrenamientoNotFoundException("Entrenamiento no encontrado con ID: " + id));
-
-        // Si el usuario no es admin, verificamos si el usuario está asignado a la clase como profesor
-        if (user.getRole() != Role.ADMIN) {
-            boolean esProfesorDeLaClase = entrenamiento.getProfesores().stream()
-                    .anyMatch(profesor -> profesor.getId().equals(user.getId()));
-
-            if (!esProfesorDeLaClase) {
-                throw new SecurityException("No tienes permisos para eliminar esta clase.");
+        // Validar que todos los profesores tienen el rol correcto
+        if (training.getProfesores() != null) {
+            for (User profesor : training.getProfesores()) {
+                if (profesor.getRole() == null || profesor.getRole() != Role.PROFESOR) {
+                    throw new RuntimeException("Todos los profesores deben tener el rol de PROFESOR.");
+                }
             }
         }
 
-        // Eliminar el entrenamiento
-        try {
+        // Validar que todos los alumnos tienen el rol correcto
+        if (training.getAlumnos() != null) {
+            for (User alumno : training.getAlumnos()) {
+                if (alumno.getRole() == null || alumno.getRole() != Role.OPOSITOR) {
+                    throw new RuntimeException("Todos los alumnos deben tener el rol de OPOSITOR.");
+                }
+            }
+        }
+
+        // Validación: Un entrenamiento no puede tener más de 2 profesores
+        if (training.getProfesores() != null && training.getProfesores().size() > 2) {
+            throw new RuntimeException("Un entrenamiento no puede tener más de 2 profesores.");
+        }
+
+        // Validar que la fecha no sea una fecha pasada
+        if (training.getFecha() != null && training.getFecha().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("La fecha del entrenamiento no puede ser anterior a la fecha actual.");
+        }
+
+        // Guardar el entrenamiento en la base de datos
+        return entrenamientoRepository.save(training);
+    }
+
+    @Transactional
+    @Override
+    public void deleteTraining(Long id, User user) {
+        // Obtener el entrenamiento por su ID
+        Optional<Entrenamiento> optionalEntrenamiento = entrenamientoRepository.findById(id);
+
+        if (!optionalEntrenamiento.isPresent()) {
+            throw new NoSuchElementException("Entrenamiento no encontrado.");
+        }
+
+        Entrenamiento entrenamiento = optionalEntrenamiento.get();
+
+        // Verificar si el usuario es admin o es uno de los profesores asignados
+        if (user.getRole() == Role.ADMIN || entrenamiento.getProfesores().contains(user)) {
+            // Eliminar el entrenamiento
             entrenamientoRepository.delete(entrenamiento);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al eliminar el entrenamiento: " + e.getMessage(), e);
+        } else {
+            throw new RuntimeException("No tienes permisos para eliminar este entrenamiento.");
         }
     }
 
-
-    @Override
     @Transactional
-    public Entrenamiento updateTraining(Long id, Entrenamiento training) {
-        // Verificamos que el entrenamiento exista antes de actualizarlo
-        Entrenamiento existingTraining = entrenamientoRepository.findById(id)
-                .orElseThrow(() -> new EntrenamientoNotFoundException("Entrenamiento no encontrado con ID: " + id));
-        existingTraining.setOposicion(training.getOposicion());
-        existingTraining.setProfesores(training.getProfesores());
-        existingTraining.setFecha(training.getFecha());
-        existingTraining.setLugar(training.getLugar());
+    @Override
+    public Entrenamiento updateTraining(Long id, Entrenamiento entrenamiento,User user) {
+        Optional<Entrenamiento> optionalEntrenamiento = entrenamientoRepository.findById(id);
 
-        try {
-            return entrenamientoRepository.save(existingTraining);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al actualizar el entrenamiento: " + e.getMessage(), e);
+        if (!optionalEntrenamiento.isPresent()) {
+            throw new NoSuchElementException("Entrenamiento no encontrado.");
         }
+
+        Entrenamiento training = optionalEntrenamiento.get();
+        if (user.getRole() == Role.ADMIN || training.getProfesores().contains(user)) {
+            training.setFecha(entrenamiento.getFecha());
+            training.setLugar(entrenamiento.getLugar());
+        } else {
+            throw new RuntimeException("No tienes permisos para eliminar este entrenamiento.");
+        }
+
+        return entrenamientoRepository.save(training);
     }
 
     @Override
     public List<Entrenamiento> getAllTrainings() {
-        try {
-            return entrenamientoRepository.findAll();
-        } catch (Exception e) {
-            throw new RuntimeException("Error al obtener todas las clases de entrenamiento: " + e.getMessage(), e);
+        List<Entrenamiento> entrenamientos = entrenamientoRepository.findAll();
+
+        if (entrenamientos.isEmpty()) {
+            throw new RuntimeException("No hay entrenamientos registrados.");
         }
+
+        return entrenamientos;
     }
 
     @Override
     public List<Entrenamiento> getTrainingsByProfessor(User professor) {
-        if (professor == null || professor.getRole() != Role.PROFESOR) {
-            throw new RuntimeException("El usuario no es un profesor o no está autenticado correctamente.");
+        if (professor.getRole() != Role.PROFESOR) {
+            throw new AccessDeniedException("Acceso denegado: Solo los profesores pueden ver sus entrenamientos.");
         }
-        try {
-            List<Entrenamiento> clases = entrenamientoRepository.findByProfesores(professor);
 
-            if (clases.isEmpty()) {
-                throw new RuntimeException("No tienes clases asignadas.");
-            }
-            return clases;
-        } catch (Exception e) {
-            throw new RuntimeException("Error al obtener las clases del profesor: " + e.getMessage(), e);
+        List<Entrenamiento> entrenamientos = entrenamientoRepository.findByProfesores(professor);
+
+        if (entrenamientos.isEmpty()) {
+            throw new RuntimeException("No se encontraron entrenamientos asignados a este profesor.");
         }
+
+        return entrenamientos;
     }
 
-    @Override
-    public List<Entrenamiento> getTrainingsByOpposition(Oposicion oposicion) {
-        // Verificamos si la oposición está presente
-        if (oposicion == null) {
-            throw new IllegalArgumentException("No se ha asignado ninguna oposicion");
-        }
 
-        try {
-            return entrenamientoRepository.findByOposicion(oposicion);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al obtener las clases para la oposición: " + e.getMessage(), e);
-        }
+    @Override
+    public List<Entrenamiento> getTrainingsByOpposition(Oposicion opposition) {
+        return List.of();
     }
 
     @Override
     public Optional<Entrenamiento> getTrainingById(Long id) {
-        // Buscamos el entrenamiento por su ID
-        try {
-            return entrenamientoRepository.findById(id);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al obtener el entrenamiento con ID " + id + ": " + e.getMessage(), e);
-        }
+        return Optional.empty();
     }
+
+
 }
 

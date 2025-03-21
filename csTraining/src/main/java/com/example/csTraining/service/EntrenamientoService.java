@@ -16,7 +16,7 @@ public interface EntrenamientoService {
     void deleteTraining(Long id, User user);
 
     // Admin: Puede actualizar cualquier entrenamiento
-    Entrenamiento updateTraining(Long id, Entrenamiento training);
+    Entrenamiento updateTraining(Long id, Entrenamiento training,User user);
 
     // Admin: Puede obtener todas las clases
     List<Entrenamiento> getAllTrainings();
