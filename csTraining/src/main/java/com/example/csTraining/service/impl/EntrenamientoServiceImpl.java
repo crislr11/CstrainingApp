@@ -139,12 +139,20 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
 
     @Override
     public List<Entrenamiento> getTrainingsByOpposition(Oposicion opposition) {
-        return List.of();
+        List<Entrenamiento> entrenamientos = entrenamientoRepository.findByOposicion(opposition);
+        if (entrenamientos == null || entrenamientos.isEmpty()) {
+            throw new RuntimeException("No hay entrenamientos disponibles para la oposición: " + opposition);
+        }
+        return entrenamientos;
     }
 
     @Override
     public Optional<Entrenamiento> getTrainingById(Long id) {
-        return Optional.empty();
+        Optional<Entrenamiento> optionalTraining = entrenamientoRepository.findById(id);
+        if (!optionalTraining.isPresent()) {
+            throw new RuntimeException("No hay entrenamientos disponibles con el ID: " + id);
+        }
+        return optionalTraining;
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.csTraining.controller;
 
 import com.example.csTraining.entity.Entrenamiento;
+import com.example.csTraining.entity.Oposicion;
 import com.example.csTraining.entity.User;
 import com.example.csTraining.service.EntrenamientoService;
 import lombok.RequiredArgsConstructor;
@@ -90,6 +91,29 @@ public class EntrenamientoController {
         }
     }
 
+    @GetMapping("/oposicion/{oposicion}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPOSITOR')")
+    public ResponseEntity<?> getTrainingsByOpposition(@PathVariable Oposicion oposicion, @AuthenticationPrincipal User user) {
+        try {
+            List<Entrenamiento> entrenamientos = entrenamientoService.getTrainingsByOpposition(oposicion);
+            return ResponseEntity.ok(entrenamientos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESOR') or hasRole('OPOSITOR')")
+    public ResponseEntity<?> getTrainingById(@PathVariable Long id) {
+        try {
+            Entrenamiento entrenamiento = entrenamientoService.getTrainingById(id).orElseThrow();
+            return ResponseEntity.ok(entrenamiento);
+        }catch (AccessDeniedException e) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
 
 
