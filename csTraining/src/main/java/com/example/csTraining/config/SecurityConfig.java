@@ -23,24 +23,41 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(publicEndPoints()).permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/entrenamientos").hasRole("ADMIN")
-                        .requestMatchers("/api/entrenamientos/**").hasAnyRole("ADMIN", "PROFESOR", "OPOSITOR")
-                        .anyRequest().authenticated() // Todas las demás rutas requieren autenticación
-                )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    @Configuration
+    @EnableWebSecurity
+    @RequiredArgsConstructor
+    @EnableMethodSecurity
+    public class SecurityConfig {
 
-        return http.build();
+        private final JwtFilter jwtFilter;
+        private final AuthenticationProvider authenticationProvider;
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            http.csrf(csrf -> csrf.disable())
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/api/auth/**").permitAll()
+                            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/api/entrenamientos/**").hasAnyRole("ADMIN", "PROFESOR", "OPOSITOR")
+                            .anyRequest().authenticated()  // Todas las demás rutas requieren autenticación
+                    )
+                    .formLogin()
+                    .loginPage("Auth/login")
+                    .permitAll()
+                    .and()
+                    .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authenticationProvider(authenticationProvider)
+                    .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+            return http.build();
+        }
     }
 
-    private RequestMatcher publicEndPoints() {
-        return new OrRequestMatcher(new AntPathRequestMatcher("/api/auth/**"));
+
+    private RequestMatcher publicEndPoints() {return new OrRequestMatcher(
+                new AntPathRequestMatcher("/api/auth/**"),
+                new AntPathRequestMatcher("/api/roles"),
+                new AntPathRequestMatcher("/api/oposiciones")
+        );
     }
 }

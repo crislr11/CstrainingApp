@@ -19,11 +19,7 @@ public class RegisterRequest {
     private String username;
     private String password;
     private String email;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    @Enumerated(EnumType.STRING)
-    private Oposicion oposicion;
+    private String role;
+    private String oposicion;
 
 }

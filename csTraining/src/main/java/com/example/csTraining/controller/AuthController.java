@@ -26,6 +26,19 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> registro(@RequestBody RegisterRequest request) {
         try {
+            // Validar si los valores de role y oposicion son correctos
+            if (Role.fromString(request.getRole()) == null || Oposicion.fromString(request.getOposicion()) == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new AuthResponse("Error: Rol u Oposición inválidos."));
+            }
+
+            // Si son válidos, pasamos los valores
+            Role role = Role.valueOf(request.getRole().toUpperCase());
+            Oposicion oposicion = Oposicion.valueOf(request.getOposicion().toUpperCase());
+
+            request.setRole(role);
+            request.setOposicion(oposicion);
+
             AuthResponse authResponse = authService.register(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
         } catch (UserAlreadyExistsException ex) {
@@ -36,6 +49,8 @@ public class AuthController {
                     .body(new AuthResponse("Error inesperado: " + ex.getMessage()));
         }
     }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
