@@ -16,6 +16,8 @@ public class AuthResponse {
     private String oposicion;
     private String role;
     private String nombreUsuario;
+    private int creditos;
+    private boolean pagado;
 
     // Constructorpara manejar (error)
     public AuthResponse(String token) {

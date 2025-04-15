@@ -74,4 +74,8 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return isActive;
     }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.username = nombreUsuario;
+    }
 }

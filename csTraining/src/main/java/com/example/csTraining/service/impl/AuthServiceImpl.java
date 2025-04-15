@@ -63,6 +63,8 @@ public class AuthServiceImpl implements AuthService {
                     .oposicion(user.getOposicion().name())
                     .role(user.getRole().name())
                     .nombreUsuario(user.getNombreUsuario())
+                    .creditos(user.getCreditos())
+                    .pagado(user.isPagado())
                     .build();
 
         } catch (UsernameNotFoundException e) {

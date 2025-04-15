@@ -44,10 +44,7 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new UserNotFoundException("Usuario con ID " + id + " no encontrado"));
 
         try {
-            user.setUsername(userDetails.getUsername());
-            user.setEmail(userDetails.getEmail());
-            user.setActive(userDetails.isActive());
-            user.setOposicion(userDetails.getOposicion());
+            user.setNombreUsuario(userDetails.getNombreUsuario());
             user.setCreditos(userDetails.getCreditos());
             user.setPagado(userDetails.isPagado());
 
@@ -56,6 +53,7 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Error al actualizar el usuario: " + e.getMessage(), e);
         }
     }
+
 
     @Override
     public void deleteUser(Long id) {
