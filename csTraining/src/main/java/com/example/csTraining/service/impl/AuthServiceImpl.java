@@ -59,9 +59,10 @@ public class AuthServiceImpl implements AuthService {
             return AuthResponse.builder()
                     .token(jwtToken)
                     .id(user.getId())
-                    .nombre(user.getUsername())
+                    .email(user.getUsername())
                     .oposicion(user.getOposicion().name())
                     .role(user.getRole().name())
+                    .nombreUsuario(user.getNombreUsuario())
                     .build();
 
         } catch (UsernameNotFoundException e) {
@@ -93,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .token(jwtToken)
-                .nombre(user.getUsername())
+                .email(user.getUsername())
                 .oposicion(user.getOposicion().name())
                 .role(user.getRole().name())
                 .build();
