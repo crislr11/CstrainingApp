@@ -28,10 +28,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
+    public User getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
-            return user;
+            return user.get();
         } else {
             throw new UserNotFoundException("Usuario con ID " + id + " no encontrado");
         }

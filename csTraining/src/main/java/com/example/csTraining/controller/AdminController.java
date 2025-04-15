@@ -9,10 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/user")
@@ -24,57 +22,92 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/listar")
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(adminService.getAllUsers());
+        try {
+            List<User> users = adminService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            e.printStackTrace();  // Esto imprimirá el error en los logs
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(adminService.getUserById(id).get());
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(adminService.getUserById(id));
+        } catch (UserNotFoundException ex) {
+            return handleUserNotFoundException(ex);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
-        return ResponseEntity.ok(adminService.updateUser(id, userDetails));
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+        try {
+            User updatedUser = adminService.updateUser(id, userDetails);
+            return ResponseEntity.ok(updatedUser);
+        } catch (UserNotFoundException ex) {
+            return handleUserNotFoundException(ex);
+        } catch (Exception ex) {
+            return handleGenericException(ex);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        adminService.deleteUser(id);
-        return ResponseEntity.ok("Usuario eliminado ");
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            adminService.deleteUser(id);
+            return ResponseEntity.ok("Usuario eliminado");
+        } catch (UserNotFoundException ex) {
+            return handleUserNotFoundException(ex);
+        } catch (Exception ex) {
+            return handleGenericException(ex);
+        }
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/cambiarEstado")
-    public ResponseEntity<String> toggleUserStatus(@PathVariable Long id) {
-        adminService.toggleUserStatus(id);
-        return ResponseEntity.ok("Estado del usuario cambiado ");
+    public ResponseEntity<?> toggleUserStatus(@PathVariable Long id) {
+        try {
+            adminService.toggleUserStatus(id);
+            return ResponseEntity.ok("Estado del usuario cambiado");
+        } catch (UserNotFoundException ex) {
+            return handleUserNotFoundException(ex);
+        } catch (Exception ex) {
+            return handleGenericException(ex);
+        }
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/actualizarCreditos")
-    public ResponseEntity<String> updateUserCredits(@PathVariable Long id, @RequestBody int newCredits) {
-        adminService.updateUserCredits(id, newCredits);
-        return ResponseEntity.ok("Créditos del usuario actualizados");
+    public ResponseEntity<?> updateUserCredits(@PathVariable Long id, @RequestBody int newCredits) {
+        try {
+            adminService.updateUserCredits(id, newCredits);
+            return ResponseEntity.ok("Créditos del usuario actualizados");
+        } catch (UserNotFoundException ex) {
+            return handleUserNotFoundException(ex);
+        } catch (Exception ex) {
+            return handleGenericException(ex);
+        }
     }
 
+    // --------- MANEJO DE ERRORES ---------
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + ex.getMessage());
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Se produjo un error interno: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error inesperado: " + ex.getMessage());
     }
 }

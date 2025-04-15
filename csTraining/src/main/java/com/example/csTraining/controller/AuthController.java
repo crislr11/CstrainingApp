@@ -30,10 +30,10 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
         } catch (UserAlreadyExistsException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new AuthResponse("Error: " + ex.getMessage()));
+                    .body(new AuthResponse(ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new AuthResponse("Error inesperado: " + ex.getMessage()));
+                    .body(new AuthResponse(ex.getMessage()));
         }
     }
 
