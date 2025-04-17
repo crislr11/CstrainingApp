@@ -31,7 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/entrenamientos").hasRole("ADMIN")
                         .requestMatchers("/api/entrenamientos/**").hasAnyRole("ADMIN", "PROFESOR", "OPOSITOR")
-                        .anyRequest().authenticated() // Todas las demás rutas requieren autenticación
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

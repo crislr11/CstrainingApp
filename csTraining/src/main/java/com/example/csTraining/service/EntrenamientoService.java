@@ -4,6 +4,7 @@ import com.example.csTraining.entity.Entrenamiento;
 import com.example.csTraining.entity.Oposicion;
 import com.example.csTraining.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,4 +30,11 @@ public interface EntrenamientoService {
 
     // Obtener entrenamiento por ID (para validaciones)
     Optional<Entrenamiento> getTrainingById(Long id);
+
+    // Opositor: Ver entrenamientos futuros de su oposición
+    List<Entrenamiento> getFutureTrainingsByOpposition(Oposicion oposicion, LocalDateTime fechaReferencia);
+
+    // Profesor: Ver entrenamientos futuros a los que está asigando
+    List<Entrenamiento> getFutureTrainingsByProfessor(User professor);
+
 }
