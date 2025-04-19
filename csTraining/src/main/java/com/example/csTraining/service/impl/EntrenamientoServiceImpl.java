@@ -53,18 +53,27 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     @Transactional
     @Override
     public Entrenamiento updateTraining(Long id, Entrenamiento entrenamiento, User user) {
+        // Buscar el entrenamiento existente
         Entrenamiento training = entrenamientoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entrenamiento no encontrado."));
-
+        System.out.println(entrenamiento);
         if (user.getRole() != Role.ADMIN && !training.getProfesores().contains(user)) {
             throw new AccessDeniedException("No tienes permisos para actualizar este entrenamiento.");
         }
-
-        training.setFecha(entrenamiento.getFecha());
+        training.setOposicion(entrenamiento.getOposicion());
         training.setLugar(entrenamiento.getLugar());
+        training.setFecha(entrenamiento.getFecha());
 
+        if (entrenamiento.getProfesores() != null && !entrenamiento.getProfesores().isEmpty()) {
+            training.setProfesores(entrenamiento.getProfesores());
+        }
+
+        if (entrenamiento.getAlumnos() != null) {
+            training.setAlumnos(entrenamiento.getAlumnos());
+        }
         return entrenamientoRepository.save(training);
     }
+
 
     @Override
     public List<Entrenamiento> getAllTrainings() {

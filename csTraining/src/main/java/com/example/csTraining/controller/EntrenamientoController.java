@@ -15,7 +15,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/entrenamientos")
@@ -26,7 +28,7 @@ public class EntrenamientoController {
     @Qualifier("entrenamientoService")
     private final EntrenamientoService entrenamientoService;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createTraining(@RequestBody Entrenamiento training) {
         try {
@@ -37,7 +39,7 @@ public class EntrenamientoController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PROFESOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTraining(@PathVariable Long id, @AuthenticationPrincipal User user) {
         try {
@@ -50,9 +52,9 @@ public class EntrenamientoController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PROFESOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateTraining(@PathVariable Long id, @RequestBody Entrenamiento entrenamiento, @AuthenticationPrincipal User user) {
+    public ResponseEntity<String> updateTraining(@PathVariable Long id, @RequestBody Entrenamiento entrenamiento, @AuthenticationPrincipal User user) {
         try {
             entrenamientoService.updateTraining(id, entrenamiento, user);
             return ResponseEntity.ok("Entrenamiento actualizado correctamente.");
@@ -62,6 +64,7 @@ public class EntrenamientoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
         }
     }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
