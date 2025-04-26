@@ -7,6 +7,7 @@ import com.example.csTraining.service.EntrenamientoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -122,6 +123,24 @@ public class EntrenamientoController {
             return ResponseEntity.ok(entrenamientos);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/filtrar-por-fechas")
+    public ResponseEntity<?> getEntrenamientosEntreFechas(
+            @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam("fin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
+        try {
+            List<Entrenamiento> entrenamientos = entrenamientoService.obtenerEntrenamientosEntreFechas(inicio, fin);
+            return ResponseEntity.ok(entrenamientos);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "error", "Ocurrió un error inesperado al filtrar entrenamientos.",
+                    "detalles", e.getMessage()
+            ));
         }
     }
 }

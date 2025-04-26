@@ -65,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
                     .nombreUsuario(user.getNombreUsuario())
                     .creditos(user.getCreditos())
                     .pagado(user.isPagado())
+                    .pagos(user.getPagos())
                     .build();
 
         } catch (UsernameNotFoundException e) {

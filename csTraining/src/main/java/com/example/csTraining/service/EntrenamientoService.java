@@ -37,4 +37,7 @@ public interface EntrenamientoService {
     // Profesor: Ver entrenamientos futuros a los que está asigando
     List<Entrenamiento> getFutureTrainingsByProfessor(User professor);
 
+    //Admin: Ver entrenamientos entre dos fechas
+    List<Entrenamiento> obtenerEntrenamientosEntreFechas(LocalDateTime inicio, LocalDateTime fin);
+
 }

@@ -1,9 +1,12 @@
 package com.example.csTraining.controller.models;
 
+import com.example.csTraining.entity.Pago;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,6 +21,7 @@ public class AuthResponse {
     private String nombreUsuario;
     private int creditos;
     private boolean pagado;
+    private List<Pago> pagos;
 
     // Constructorpara manejar (error)
     public AuthResponse(String token) {

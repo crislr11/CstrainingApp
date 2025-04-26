@@ -1,7 +1,6 @@
 package com.example.csTraining.entity;
 
 public enum Oposicion {
-    BOMBERO,
     POLICIA_NACIONAL,
     POLICIA_LOCAL,
     SUBOFICIAL,

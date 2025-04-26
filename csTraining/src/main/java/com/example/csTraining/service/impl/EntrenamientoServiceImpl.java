@@ -113,7 +113,9 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     @Override
     public Optional<Entrenamiento> getTrainingById(Long id) {
         return entrenamientoRepository.findById(id)
-                .or(() -> { throw new RuntimeException("No hay entrenamientos disponibles con el ID: " + id); });
+                .or(() -> {
+                    throw new RuntimeException("No hay entrenamientos disponibles con el ID: " + id);
+                });
     }
 
     @Override
@@ -141,6 +143,20 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
 
         return entrenamientos;
     }
+
+    @Override
+    public List<Entrenamiento> obtenerEntrenamientosEntreFechas(LocalDateTime inicio, LocalDateTime fin) {
+        if (inicio == null || fin == null) {
+            throw new IllegalArgumentException("Las fechas no pueden ser nulas.");
+        }
+
+        if (inicio.isAfter(fin)) {
+            throw new IllegalArgumentException("La fecha de inicio debe ser anterior a la fecha de fin.");
+        }
+
+        return entrenamientoRepository.findByFechaBetween(inicio, fin);
+    }
+
 
     // MÉTODOS PRIVADOS
 
@@ -175,4 +191,5 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
             throw new RuntimeException("La fecha del entrenamiento no puede ser anterior a la actual.");
         }
     }
+
 }

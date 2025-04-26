@@ -24,6 +24,8 @@ public interface EntrenamientoRepository extends JpaRepository<Entrenamiento, Lo
 
     List<Entrenamiento> findByProfesoresAndFechaAfter(User profesor, LocalDateTime fecha);
 
+    List<Entrenamiento> findByFechaBetween(LocalDateTime inicio, LocalDateTime fin);
+
 
 }
 
