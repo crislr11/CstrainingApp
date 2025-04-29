@@ -32,6 +32,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/entrenamientos").hasRole("ADMIN")
                         .requestMatchers("/api/entrenamientos/**").hasAnyRole("ADMIN", "PROFESOR", "OPOSITOR")
                         .requestMatchers("/api/pagos/").hasRole("ADMIN")
+                        .requestMatchers("/simulacro/**").hasRole("PROFESOR")
+                        .requestMatchers("/ejercicio/**").hasRole("PROFESOR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

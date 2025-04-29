@@ -1,4 +1,4 @@
-package com.example.csTraining.entity;
+package com.example.csTraining.entity.enums;
 
 public enum Oposicion {
     POLICIA_NACIONAL,

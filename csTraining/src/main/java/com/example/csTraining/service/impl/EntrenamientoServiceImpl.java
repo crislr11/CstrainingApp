@@ -1,8 +1,8 @@
 package com.example.csTraining.service.impl;
 
 import com.example.csTraining.entity.Entrenamiento;
-import com.example.csTraining.entity.Oposicion;
-import com.example.csTraining.entity.Role;
+import com.example.csTraining.entity.enums.Oposicion;
+import com.example.csTraining.entity.enums.Role;
 import com.example.csTraining.entity.User;
 import com.example.csTraining.repository.EntrenamientoRepository;
 import com.example.csTraining.repository.UserRepository;

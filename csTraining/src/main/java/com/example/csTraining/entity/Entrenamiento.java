@@ -1,5 +1,7 @@
 package com.example.csTraining.entity;
 
+import com.example.csTraining.entity.enums.Lugar;
+import com.example.csTraining.entity.enums.Oposicion;
 import jakarta.persistence.*;
 import lombok.*;
 

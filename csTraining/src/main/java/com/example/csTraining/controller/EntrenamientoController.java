@@ -1,7 +1,7 @@
 package com.example.csTraining.controller;
 
 import com.example.csTraining.entity.Entrenamiento;
-import com.example.csTraining.entity.Oposicion;
+import com.example.csTraining.entity.enums.Oposicion;
 import com.example.csTraining.entity.User;
 import com.example.csTraining.service.EntrenamientoService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

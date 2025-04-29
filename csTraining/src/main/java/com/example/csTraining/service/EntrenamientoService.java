@@ -1,7 +1,7 @@
 package com.example.csTraining.service;
 
 import com.example.csTraining.entity.Entrenamiento;
-import com.example.csTraining.entity.Oposicion;
+import com.example.csTraining.entity.enums.Oposicion;
 import com.example.csTraining.entity.User;
 
 import java.time.LocalDateTime;

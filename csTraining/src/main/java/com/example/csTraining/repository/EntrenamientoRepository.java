@@ -1,7 +1,7 @@
 package com.example.csTraining.repository;
 
 import com.example.csTraining.entity.Entrenamiento;
-import com.example.csTraining.entity.Oposicion;
+import com.example.csTraining.entity.enums.Oposicion;
 import com.example.csTraining.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

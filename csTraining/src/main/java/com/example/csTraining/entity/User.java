@@ -1,7 +1,8 @@
 package com.example.csTraining.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.example.csTraining.entity.enums.Oposicion;
+import com.example.csTraining.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,6 +46,10 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pago> pagos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Simulacro> simulacros = new ArrayList<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,7 +1,7 @@
 package com.example.csTraining.controller.models;
 
-import com.example.csTraining.entity.Oposicion;
-import com.example.csTraining.entity.Role;
+import com.example.csTraining.entity.enums.Oposicion;
+import com.example.csTraining.entity.enums.Role;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
