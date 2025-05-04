@@ -22,6 +22,8 @@ public class AuthResponse {
     private int creditos;
     private boolean pagado;
     private List<Pago> pagos;
+    private List<Simulacro> simulacros;
+
 
     // Constructorpara manejar (error)
     public AuthResponse(String token) {

@@ -1,58 +1,49 @@
 package com.example.csTraining.service.impl;
 
-import com.example.csTraining.entity.Ejercicio;
-import com.example.csTraining.repository.EjercicioRepository;
 import com.example.csTraining.service.EjercicioService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service("ejercicioService")
 @RequiredArgsConstructor
 public class EjercicioServiceImpl implements EjercicioService {
 
     private final EjercicioRepository ejercicioRepository;
+    private final SimulacroRepository simulacroRepository;
 
     @Override
-    public Ejercicio crearEjercicio(Ejercicio ejercicio) {
+    public Ejercicio añadirEjercicioASimulacro(Long simulacroId, Ejercicio ejercicio) {
+        Simulacro simulacro = simulacroRepository.findById(simulacroId)
+                .orElseThrow(() -> new EntityNotFoundException("Simulacro con ID " + simulacroId + " no encontrado."));
+
+        ejercicio.setSimulacro(simulacro);
         return ejercicioRepository.save(ejercicio);
     }
 
     @Override
-    public List<Ejercicio> obtenerTodosEjercicios() {
-        return ejercicioRepository.findAll();
-    }
+    public Ejercicio editarEjercicio(Long id, Ejercicio ejercicio) {
+        Ejercicio ejercicioExistente = ejercicioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ejercicio con ID " + id + " no encontrado."));
 
-    @Override
-    public List<Ejercicio> obtenerEjerciciosPorSimulacro(Long idSimulacro) {
-        return ejercicioRepository.findBySimulacroId(idSimulacro);
-    }
-
-    @Override
-    @Transactional
-    public Ejercicio modificarNombreEjercicio(Long id, String nuevoNombre) {
-        Ejercicio ejercicio = ejercicioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ejercicio no encontrado"));
-
-        ejercicio.setNombreEjercicio(nuevoNombre);
-        return ejercicioRepository.save(ejercicio);
-    }
-
-    @Override
-    @Transactional
-    public Ejercicio modificarMarcaEjercicio(Long id, double nuevaMarca) {
-        Ejercicio ejercicio = ejercicioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ejercicio no encontrado"));
-
-        ejercicio.setMarca(nuevaMarca);
-        return ejercicioRepository.save(ejercicio);
+        ejercicioExistente.setNombreEjercicio(ejercicio.getNombreEjercicio());
+        ejercicioExistente.setMarca(ejercicio.getMarca());
+        return ejercicioRepository.save(ejercicioExistente);
     }
 
     @Override
     public void eliminarEjercicio(Long id) {
-        ejercicioRepository.deleteById(id);
+        Ejercicio ejercicio = ejercicioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ejercicio con ID " + id + " no encontrado."));
+        ejercicioRepository.delete(ejercicio);
+    }
+
+    @Override
+    public List<Ejercicio> obtenerEjerciciosPorSimulacro(Long simulacroId) {
+        Simulacro simulacro = simulacroRepository.findById(simulacroId)
+                .orElseThrow(() -> new EntityNotFoundException("Simulacro con ID " + simulacroId + " no encontrado."));
+        return ejercicioRepository.findBySimulacroId(simulacroId);
     }
 }

@@ -19,19 +19,19 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @GetMapping("/listar")
     public ResponseEntity<List<User>> getAllUsers() {
         try {
             List<User> users = adminService.getAllUsers();
             return ResponseEntity.ok(users);
         } catch (Exception e) {
-            e.printStackTrace();  // Esto imprimirá el error en los logs
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @GetMapping("/buscar/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {

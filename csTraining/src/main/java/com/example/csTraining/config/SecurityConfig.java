@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/pagos/").hasRole("ADMIN")
                         .requestMatchers("/simulacro/**").hasRole("PROFESOR")
                         .requestMatchers("/ejercicio/**").hasRole("PROFESOR")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

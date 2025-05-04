@@ -28,6 +28,7 @@ public class EntrenamientoController {
     @Qualifier("entrenamientoService")
     private final EntrenamientoService entrenamientoService;
 
+    // ========== ENDPOINTS DE CREACIÓN ==========
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createTraining(@RequestBody Entrenamiento training) {
@@ -39,22 +40,13 @@ public class EntrenamientoController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTraining(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        try {
-            entrenamientoService.deleteTraining(id, user);
-            return ResponseEntity.ok("Entrenamiento eliminado correctamente.");
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado: " + e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
-        }
-    }
-
+    // ========== ENDPOINTS DE ACTUALIZACIÓN ==========
     @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateTraining(@PathVariable Long id, @RequestBody Entrenamiento entrenamiento, @AuthenticationPrincipal User user) {
+    public ResponseEntity<String> updateTraining(
+            @PathVariable Long id,
+            @RequestBody Entrenamiento entrenamiento,
+            @AuthenticationPrincipal User user) {
         try {
             entrenamientoService.updateTraining(id, entrenamiento, user);
             return ResponseEntity.ok("Entrenamiento actualizado correctamente.");
@@ -65,24 +57,15 @@ public class EntrenamientoController {
         }
     }
 
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
-    public ResponseEntity<?> getAllTrainings() {
+    // ========== ENDPOINTS DE ELIMINACIÓN ==========
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTraining(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
         try {
-            List<Entrenamiento> entrenamientos = entrenamientoService.getAllTrainings();
-            return ResponseEntity.ok(entrenamientos);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
-        }
-    }
-
-    @PreAuthorize("hasRole('PROFESOR')")
-    @GetMapping("/profesor")
-    public ResponseEntity<?> getTrainingsByProfessor(@AuthenticationPrincipal User user) {
-        try {
-            List<Entrenamiento> entrenamientos = entrenamientoService.getTrainingsByProfessor(user);
-            return ResponseEntity.ok(entrenamientos);
+            entrenamientoService.deleteTraining(id, user);
+            return ResponseEntity.ok("Entrenamiento eliminado correctamente.");
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado: " + e.getMessage());
         } catch (RuntimeException e) {
@@ -90,35 +73,12 @@ public class EntrenamientoController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('OPOSITOR')")
-    @GetMapping("/oposicion/{oposicion}")
-    public ResponseEntity<?> getTrainingsByOpposition(@PathVariable Oposicion oposicion) {
+    // ========== ENDPOINTS DE CONSULTA GENERAL ==========
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<?> getAllTrainings() {
         try {
-            List<Entrenamiento> entrenamientos = entrenamientoService.getTrainingsByOpposition(oposicion);
-            return ResponseEntity.ok(entrenamientos);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
-        }
-    }
-
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESOR') or hasRole('OPOSITOR')")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getTrainingById(@PathVariable Long id) {
-        try {
-            Entrenamiento entrenamiento = entrenamientoService.getTrainingById(id).orElseThrow();
-            return ResponseEntity.ok(entrenamiento);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
-        }
-    }
-
-
-    @PreAuthorize("hasRole('OPOSITOR')")
-    @GetMapping("/futurosEntrenos/{oposicion}")
-    public ResponseEntity<?> getFutureTrainingsByOpposition(@PathVariable Oposicion oposicion) {
-        try {
-            LocalDateTime fechaActual = LocalDateTime.now();
-            List<Entrenamiento> entrenamientos = entrenamientoService.getFutureTrainingsByOpposition(oposicion, fechaActual);
+            List<Entrenamiento> entrenamientos = entrenamientoService.getAllTrainings();
             return ResponseEntity.ok(entrenamientos);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
@@ -140,6 +100,70 @@ public class EntrenamientoController {
                     "error", "Ocurrió un error inesperado al filtrar entrenamientos.",
                     "detalles", e.getMessage()
             ));
+        }
+    }
+
+    // ========== ENDPOINTS DE CONSULTA POR ID ==========
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESOR') or hasRole('OPOSITOR')")
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTrainingById(@PathVariable Long id) {
+        try {
+            Entrenamiento entrenamiento = entrenamientoService.getTrainingById(id).orElseThrow();
+            return ResponseEntity.ok(entrenamiento);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        }
+    }
+
+    // ========== ENDPOINTS PARA PROFESORES ==========
+    @PreAuthorize("hasRole('PROFESOR')")
+    @GetMapping("/profesor")
+    public ResponseEntity<?> getTrainingsByProfessor(@AuthenticationPrincipal User user) {
+        try {
+            List<Entrenamiento> entrenamientos = entrenamientoService.getTrainingsByProfessor(user);
+            return ResponseEntity.ok(entrenamientos);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESOR')")
+    @GetMapping("/profesor/{id}/futuros")
+    public ResponseEntity<?> getFutureTrainingsByProfessor(@PathVariable Long id) {
+        try {
+            List<Entrenamiento> entrenamientos = entrenamientoService.getFutureTrainingsByProfessor(id);
+            return ResponseEntity.ok(entrenamientos);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        }
+    }
+
+
+    // ========== ENDPOINTS PARA OPOSITORES ==========
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPOSITOR')")
+    @GetMapping("/oposicion/{oposicion}")
+    public ResponseEntity<?> getTrainingsByOpposition(@PathVariable Oposicion oposicion) {
+        try {
+            List<Entrenamiento> entrenamientos = entrenamientoService.getTrainingsByOpposition(oposicion);
+            return ResponseEntity.ok(entrenamientos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('OPOSITOR')")
+    @GetMapping("/futurosEntrenos/{oposicion}")
+    public ResponseEntity<?> getFutureTrainingsByOpposition(@PathVariable Oposicion oposicion) {
+        try {
+            LocalDateTime fechaActual = LocalDateTime.now();
+            List<Entrenamiento> entrenamientos = entrenamientoService.getFutureTrainingsByOpposition(oposicion, fechaActual);
+            return ResponseEntity.ok(entrenamientos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
         }
     }
 }

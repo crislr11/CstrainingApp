@@ -130,7 +130,10 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     }
 
     @Override
-    public List<Entrenamiento> getFutureTrainingsByProfessor(User professor) {
+    public List<Entrenamiento> getFutureTrainingsByProfessor(Long professorId) {
+        User professor = userRepository.findById(professorId)
+                .orElseThrow(() -> new RuntimeException("Profesor no encontrado con ID: " + professorId));
+
         if (professor.getRole() != Role.PROFESOR) {
             throw new RuntimeException("Acceso denegado: Solo los profesores pueden ver sus entrenamientos.");
         }
@@ -143,6 +146,7 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
 
         return entrenamientos;
     }
+
 
     @Override
     public List<Entrenamiento> obtenerEntrenamientosEntreFechas(LocalDateTime inicio, LocalDateTime fin) {
