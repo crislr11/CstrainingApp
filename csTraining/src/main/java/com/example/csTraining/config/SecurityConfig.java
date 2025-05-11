@@ -27,14 +27,26 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Public Endpoints
                         .requestMatchers(publicEndPoints()).permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/entrenamientos").hasRole("ADMIN")
-                        .requestMatchers("/api/entrenamientos/**").hasAnyRole("ADMIN", "PROFESOR", "OPOSITOR")
+                        // Rutas para ADMIN
+                        .requestMatchers("/api/admin/**").hasAnyRole("PROFESOR", "ADMIN")
+                        .requestMatchers("/api/entrenamientos").hasAnyRole("PROFESOR", "ADMIN")
                         .requestMatchers("/api/pagos/").hasRole("ADMIN")
-                        .requestMatchers("/simulacro/**").hasRole("PROFESOR")
+
+
+                        // Acceso de un OPOSITOR a sus simulacros
+                        .requestMatchers("/api/simulacro/usuario/**").hasAnyRole("PROFESOR", "OPOSITOR")
+
+                        // Acceso a los simulacros para profesor y opositor
+                        .requestMatchers("/api/simulacro/**").hasAnyRole("PROFESOR", "OPOSITOR")
+
+                        // Rutas para PROFESOR y OPOSITOR (Acceso a simulacros y ejercicios)
                         .requestMatchers("/ejercicio/**").hasRole("PROFESOR")
 
+
+
+                        // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -44,6 +56,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // Métodos para las rutas públicas (sin autenticación)
     private RequestMatcher publicEndPoints() {
         return new OrRequestMatcher(new AntPathRequestMatcher("/api/auth/**"));
     }

@@ -1,6 +1,6 @@
 package com.example.csTraining.service.impl;
 
-import com.example.csTraining.controller.models.PagoDTO;
+import com.example.csTraining.controller.DTO.PagoDTO;
 import com.example.csTraining.entity.Pago;
 import com.example.csTraining.entity.User;
 import com.example.csTraining.repository.PagoRepository;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;

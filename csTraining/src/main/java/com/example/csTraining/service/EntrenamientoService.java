@@ -1,43 +1,43 @@
 package com.example.csTraining.service;
 
-import com.example.csTraining.entity.Entrenamiento;
+
+import com.example.csTraining.controller.DTO.EntrenamientoDTO;
+import com.example.csTraining.controller.DTO.EntrenamientoResponseDTO;
 import com.example.csTraining.entity.enums.Oposicion;
 import com.example.csTraining.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface EntrenamientoService {
 
-    // Admin: Puede crear un nuevo entrenamiento
-    Entrenamiento createTraining(Entrenamiento training);
+    // Crea un nuevo entrenamiento (solo el ADMIN puede hacerlo)
+    EntrenamientoResponseDTO createTraining(EntrenamientoDTO trainingDTO);
 
-    // Admin y Profesor: Pueden eliminar un entrenamiento
+    // Elimina un entrenamiento existente (ADMIN y PROFESOR pueden hacerlo, según permisos)
     void deleteTraining(Long id, User user);
 
-    // Admin: Puede actualizar cualquier entrenamiento
-    Entrenamiento updateTraining(Long id, Entrenamiento training,User user);
+    // Actualiza un entrenamiento existente (ADMIN puede actualizar cualquiera, PROFESOR solo los suyos)
+    EntrenamientoResponseDTO updateTraining(Long id, EntrenamientoDTO trainingDTO, User user);
 
-    // Admin: Puede obtener todas las clases
-    List<Entrenamiento> getAllTrainings();
+    // Devuelve la lista de todos los entrenamientos (solo accesible para ADMIN)
+    List<EntrenamientoResponseDTO> getAllTrainings();
 
-    // Profesor: Puede ver solo sus clases
-    List<Entrenamiento> getTrainingsByProfessor(User professor);
+    // Devuelve los entrenamientos asociados a un profesor específico (ADMIN y PROFESOR)
+    List<EntrenamientoResponseDTO> getTrainingsByProfessor(Long professorId);
 
-    // Opositor: Puede ver solo las clases de su oposición
-    List<Entrenamiento> getTrainingsByOpposition(Oposicion opposition);
+    // Devuelve los entrenamientos disponibles para una oposición específica (ADMIN y OPOSITOR)
+    List<EntrenamientoResponseDTO> getTrainingsByOpposition(Oposicion opposition);
 
-    // Obtener entrenamiento por ID (para validaciones)
-    Optional<Entrenamiento> getTrainingById(Long id);
+    // Devuelve un entrenamiento específico por su ID (ADMIN, PROFESOR y OPOSITOR pueden acceder)
+    EntrenamientoResponseDTO getTrainingById(Long id);
 
-    // Opositor: Ver entrenamientos futuros de su oposición
-    List<Entrenamiento> getFutureTrainingsByOpposition(Oposicion oposicion, LocalDateTime fechaReferencia);
+    // Devuelve los entrenamientos futuros asociados a una oposición (OPOSITOR)
+    List<EntrenamientoResponseDTO> getFutureTrainingsByOpposition(Oposicion opposition, LocalDateTime fechaReferencia);
 
-    // Profesor: Ver entrenamientos futuros a los que está asigando
-    List<Entrenamiento> getFutureTrainingsByProfessor(Long professorId);
+    // Devuelve los entrenamientos futuros asignados a un profesor (PROFESOR)
+    List<EntrenamientoResponseDTO> getFutureTrainingsByProfessor(Long professorId);
 
-    //Admin: Ver entrenamientos entre dos fechas
-    List<Entrenamiento> obtenerEntrenamientosEntreFechas(LocalDateTime inicio, LocalDateTime fin);
-
+    // Devuelve los entrenamientos dentro de un rango de fechas (ADMIN)
+    List<EntrenamientoResponseDTO> obtenerEntrenamientosEntreFechas(LocalDateTime inicio, LocalDateTime fin);
 }

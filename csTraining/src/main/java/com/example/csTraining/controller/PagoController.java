@@ -1,6 +1,6 @@
 package com.example.csTraining.controller;
 
-import com.example.csTraining.controller.models.PagoDTO;
+import com.example.csTraining.controller.DTO.PagoDTO;
 import com.example.csTraining.service.PagoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

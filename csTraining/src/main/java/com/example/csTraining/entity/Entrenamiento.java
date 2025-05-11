@@ -2,6 +2,7 @@ package com.example.csTraining.entity;
 
 import com.example.csTraining.entity.enums.Lugar;
 import com.example.csTraining.entity.enums.Oposicion;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,8 @@ public class Entrenamiento {
             joinColumns = @JoinColumn(name = "entrenamiento_id"),
             inverseJoinColumns = @JoinColumn(name = "profesor_id")
     )
+
+    @JsonBackReference
     private List<User> profesores;
 
     @ManyToMany
@@ -38,6 +41,7 @@ public class Entrenamiento {
             joinColumns = @JoinColumn(name = "entrenamiento_id"),
             inverseJoinColumns = @JoinColumn(name = "alumno_id")
     )
+    @JsonBackReference
     private List<User> alumnos;
 
     @Column(nullable = false)

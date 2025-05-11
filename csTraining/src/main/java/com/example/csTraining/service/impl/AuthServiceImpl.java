@@ -5,6 +5,7 @@ import com.example.csTraining.controller.models.AuthResponse;
 import com.example.csTraining.controller.models.AuthenticationRequest;
 import com.example.csTraining.controller.models.RegisterRequest;
 import com.example.csTraining.entity.User;
+import com.example.csTraining.entity.simulacros.Simulacro;
 import com.example.csTraining.exceptions.AccountDisabledException;
 import com.example.csTraining.exceptions.CustomAuthenticationException;
 import com.example.csTraining.exceptions.UserAlreadyExistsException;
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service("authService")
@@ -37,10 +39,10 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Override
     public AuthResponse authenticate(AuthenticationRequest request) {
 
         try {
+            // Autenticación del usuario
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
@@ -48,14 +50,18 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
 
+            // Obtener el usuario autenticado
             User user = (User) authentication.getPrincipal();
 
+            // Verificar si el usuario está activo
             if (!user.isActive()) {
                 throw new AccountDisabledException("Tu cuenta no está activada. Contacta con el administrador.");
             }
 
+            // Generar el token JWT
             String jwtToken = jwtService.generateJwtToken(user);
 
+            // Construir la respuesta de autenticación con los simulacros
             return AuthResponse.builder()
                     .token(jwtToken)
                     .id(user.getId())
@@ -66,6 +72,7 @@ public class AuthServiceImpl implements AuthService {
                     .creditos(user.getCreditos())
                     .pagado(user.isPagado())
                     .pagos(user.getPagos())
+                    .simulacros(user.getSimulacros())
                     .build();
 
         } catch (UsernameNotFoundException e) {
@@ -73,9 +80,10 @@ public class AuthServiceImpl implements AuthService {
         } catch (BadCredentialsException e) {
             throw new CustomAuthenticationException("Credenciales incorrectas. Revisa tu email y contraseña.", HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            throw new CustomAuthenticationException("Tu usuario esta desactivado , espera a que el administrador te active", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomAuthenticationException("Tu usuario está desactivado, espera a que el administrador te active", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
     @Override

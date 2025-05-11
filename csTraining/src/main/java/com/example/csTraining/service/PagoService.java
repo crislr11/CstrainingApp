@@ -1,7 +1,7 @@
 package com.example.csTraining.service;
 
-import com.example.csTraining.controller.models.PagoDTO;
-import com.example.csTraining.entity.Pago;
+import com.example.csTraining.controller.DTO.PagoDTO;
+
 import java.util.List;
 
 public interface PagoService {

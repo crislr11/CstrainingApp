@@ -1,9 +1,12 @@
 package com.example.csTraining.service.impl;
 
+import com.example.csTraining.controller.DTO.EntrenamientoDTO;
+import com.example.csTraining.controller.DTO.EntrenamientoResponseDTO;
+import com.example.csTraining.controller.DTO.UserDTO;
 import com.example.csTraining.entity.Entrenamiento;
+import com.example.csTraining.entity.User;
 import com.example.csTraining.entity.enums.Oposicion;
 import com.example.csTraining.entity.enums.Role;
-import com.example.csTraining.entity.User;
 import com.example.csTraining.repository.EntrenamientoRepository;
 import com.example.csTraining.repository.UserRepository;
 import com.example.csTraining.service.EntrenamientoService;
@@ -16,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service("entrenamientoService")
 @NoArgsConstructor(force = true)
@@ -30,11 +33,59 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     @Qualifier("userRepository")
     private final UserRepository userRepository;
 
+    // Métodos para convertir entre Entidades y DTOs
+    private EntrenamientoResponseDTO convertToResponseDTO(Entrenamiento entrenamiento) {
+        EntrenamientoResponseDTO dto = new EntrenamientoResponseDTO();
+        dto.setId(entrenamiento.getId());
+        dto.setOposicion(entrenamiento.getOposicion());
+
+        // Mapeo de profesores y alumnos a UserDTO
+        dto.setProfesores(entrenamiento.getProfesores().stream()
+                .map(profesor -> new UserDTO(profesor.getId(), profesor.getNombreUsuario(), profesor.getEmail(), profesor.getRole()))
+                .collect(Collectors.toList()));
+
+        dto.setAlumnos(entrenamiento.getAlumnos().stream()
+                .map(alumno -> new UserDTO(alumno.getId(), alumno.getNombreUsuario(), alumno.getEmail(), alumno.getRole()))
+                .collect(Collectors.toList()));
+
+        dto.setFecha(entrenamiento.getFecha());
+        dto.setLugar(entrenamiento.getLugar());
+        return dto;
+    }
+
+    private Entrenamiento convertToEntity(EntrenamientoDTO dto) {
+        Entrenamiento entrenamiento = new Entrenamiento();
+        entrenamiento.setOposicion(dto.getOposicion());
+        entrenamiento.setFecha(dto.getFecha());
+        entrenamiento.setLugar(dto.getLugar());
+
+        // Convertir UserDTO a User (para profesores y alumnos)
+        if (dto.getProfesores() != null) {
+            List<User> profesores = dto.getProfesores().stream()
+                    .map(userDTO -> userRepository.findById(userDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("Profesor no encontrado con ID: " + userDTO.getId())))
+                    .collect(Collectors.toList());
+            entrenamiento.setProfesores(profesores);
+        }
+
+        if (dto.getAlumnos() != null) {
+            List<User> alumnos = dto.getAlumnos().stream()
+                    .map(userDTO -> userRepository.findById(userDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + userDTO.getId())))
+                    .collect(Collectors.toList());
+            entrenamiento.setAlumnos(alumnos);
+        }
+
+        return entrenamiento;
+    }
+
     @Transactional
     @Override
-    public Entrenamiento createTraining(Entrenamiento training) {
-        validarEntrenamiento(training);
-        return entrenamientoRepository.save(training);
+    public EntrenamientoResponseDTO createTraining(EntrenamientoDTO trainingDTO) {
+        Entrenamiento entrenamiento = convertToEntity(trainingDTO);
+        validarEntrenamiento(entrenamiento);
+        Entrenamiento savedEntrenamiento = entrenamientoRepository.save(entrenamiento);
+        return convertToResponseDTO(savedEntrenamiento);
     }
 
     @Transactional
@@ -52,42 +103,60 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
 
     @Transactional
     @Override
-    public Entrenamiento updateTraining(Long id, Entrenamiento entrenamiento, User user) {
-        // Buscar el entrenamiento existente
-        Entrenamiento training = entrenamientoRepository.findById(id)
+    public EntrenamientoResponseDTO updateTraining(Long id, EntrenamientoDTO entrenamientoDTO, User user) {
+        Entrenamiento existingTraining = entrenamientoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entrenamiento no encontrado."));
-        System.out.println(entrenamiento);
-        if (user.getRole() != Role.ADMIN && !training.getProfesores().contains(user)) {
+
+        if (user.getRole() != Role.ADMIN && !existingTraining.getProfesores().contains(user)) {
             throw new AccessDeniedException("No tienes permisos para actualizar este entrenamiento.");
         }
-        training.setOposicion(entrenamiento.getOposicion());
-        training.setLugar(entrenamiento.getLugar());
-        training.setFecha(entrenamiento.getFecha());
 
-        if (entrenamiento.getProfesores() != null && !entrenamiento.getProfesores().isEmpty()) {
-            training.setProfesores(entrenamiento.getProfesores());
+        // Actualizar campos básicos
+        existingTraining.setOposicion(entrenamientoDTO.getOposicion());
+        existingTraining.setLugar(entrenamientoDTO.getLugar());
+        existingTraining.setFecha(entrenamientoDTO.getFecha());
+
+        // Actualizar profesores si se proporcionan
+        if (entrenamientoDTO.getProfesores() != null && !entrenamientoDTO.getProfesores().isEmpty()) {
+            List<User> profesores = entrenamientoDTO.getProfesores().stream()
+                    .map(userDTO -> userRepository.findById(userDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("Profesor no encontrado con ID: " + userDTO.getId())))
+                    .collect(Collectors.toList());
+            existingTraining.setProfesores(profesores);
         }
 
-        if (entrenamiento.getAlumnos() != null) {
-            training.setAlumnos(entrenamiento.getAlumnos());
+        // Actualizar alumnos si se proporcionan
+        if (entrenamientoDTO.getAlumnos() != null) {
+            List<User> alumnos = entrenamientoDTO.getAlumnos().stream()
+                    .map(userDTO -> userRepository.findById(userDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + userDTO.getId())))
+                    .collect(Collectors.toList());
+            existingTraining.setAlumnos(alumnos);
         }
-        return entrenamientoRepository.save(training);
+
+        validarEntrenamiento(existingTraining);
+        Entrenamiento updatedEntrenamiento = entrenamientoRepository.save(existingTraining);
+        return convertToResponseDTO(updatedEntrenamiento);
     }
 
-
     @Override
-    public List<Entrenamiento> getAllTrainings() {
+    public List<EntrenamientoResponseDTO> getAllTrainings() {
         List<Entrenamiento> entrenamientos = entrenamientoRepository.findAll();
 
         if (entrenamientos.isEmpty()) {
             throw new RuntimeException("No hay entrenamientos registrados.");
         }
 
-        return entrenamientos;
+        return entrenamientos.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Entrenamiento> getTrainingsByProfessor(User professor) {
+    public List<EntrenamientoResponseDTO> getTrainingsByProfessor(Long professorId) {
+        User professor = userRepository.findById(professorId)
+                .orElseThrow(() -> new RuntimeException("Profesor no encontrado con ID: " + professorId));
+
         validarRol(professor, Role.PROFESOR);
 
         List<Entrenamiento> entrenamientos = entrenamientoRepository.findByProfesores(professor);
@@ -96,41 +165,46 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
             throw new RuntimeException("No se encontraron entrenamientos asignados a este profesor.");
         }
 
-        return entrenamientos;
+        return entrenamientos.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Entrenamiento> getTrainingsByOpposition(Oposicion opposition) {
+    public List<EntrenamientoResponseDTO> getTrainingsByOpposition(Oposicion opposition) {
         List<Entrenamiento> entrenamientos = entrenamientoRepository.findByOposicion(opposition);
 
         if (entrenamientos == null || entrenamientos.isEmpty()) {
             throw new RuntimeException("No hay entrenamientos disponibles para la oposición: " + opposition);
         }
 
-        return entrenamientos;
+        return entrenamientos.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Entrenamiento> getTrainingById(Long id) {
-        return entrenamientoRepository.findById(id)
-                .or(() -> {
-                    throw new RuntimeException("No hay entrenamientos disponibles con el ID: " + id);
-                });
+    public EntrenamientoResponseDTO getTrainingById(Long id) {
+        Entrenamiento entrenamiento = entrenamientoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No hay entrenamientos disponibles con el ID: " + id));
+        return convertToResponseDTO(entrenamiento);
     }
 
     @Override
-    public List<Entrenamiento> getFutureTrainingsByOpposition(Oposicion oposicion, LocalDateTime fechaReferencia) {
+    public List<EntrenamientoResponseDTO> getFutureTrainingsByOpposition(Oposicion oposicion, LocalDateTime fechaReferencia) {
         List<Entrenamiento> entrenamientos = entrenamientoRepository.findByOposicionAndFechaAfter(oposicion, fechaReferencia);
 
         if (entrenamientos == null || entrenamientos.isEmpty()) {
             throw new RuntimeException("No hay entrenamientos futuros disponibles para la oposición: " + oposicion);
         }
 
-        return entrenamientos;
+        return entrenamientos.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Entrenamiento> getFutureTrainingsByProfessor(Long professorId) {
+    public List<EntrenamientoResponseDTO> getFutureTrainingsByProfessor(Long professorId) {
         User professor = userRepository.findById(professorId)
                 .orElseThrow(() -> new RuntimeException("Profesor no encontrado con ID: " + professorId));
 
@@ -144,12 +218,13 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
             throw new RuntimeException("No se encontraron entrenamientos futuros asignados a este profesor.");
         }
 
-        return entrenamientos;
+        return entrenamientos.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
-
     @Override
-    public List<Entrenamiento> obtenerEntrenamientosEntreFechas(LocalDateTime inicio, LocalDateTime fin) {
+    public List<EntrenamientoResponseDTO> obtenerEntrenamientosEntreFechas(LocalDateTime inicio, LocalDateTime fin) {
         if (inicio == null || fin == null) {
             throw new IllegalArgumentException("Las fechas no pueden ser nulas.");
         }
@@ -158,12 +233,13 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
             throw new IllegalArgumentException("La fecha de inicio debe ser anterior a la fecha de fin.");
         }
 
-        return entrenamientoRepository.findByFechaBetween(inicio, fin);
+        List<Entrenamiento> entrenamientos = entrenamientoRepository.findByFechaBetween(inicio, fin);
+        return entrenamientos.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
-
-    // MÉTODOS PRIVADOS
-
+    // Métodos privados de validación
     private void validarRol(User user, Role expectedRole) {
         if (user.getRole() != expectedRole) {
             throw new AccessDeniedException("Acceso denegado: se requiere el rol " + expectedRole);
@@ -171,29 +247,8 @@ public class EntrenamientoServiceImpl implements EntrenamientoService {
     }
 
     private void validarEntrenamiento(Entrenamiento training) {
-        if (training.getProfesores() != null) {
-            for (User profesor : training.getProfesores()) {
-                if (profesor.getRole() != Role.PROFESOR) {
-                    throw new RuntimeException("Todos los profesores deben tener el rol de PROFESOR.");
-                }
-            }
-
-            if (training.getProfesores().size() > 2) {
-                throw new RuntimeException("Un entrenamiento no puede tener más de 2 profesores.");
-            }
-        }
-
-        if (training.getAlumnos() != null) {
-            for (User alumno : training.getAlumnos()) {
-                if (alumno.getRole() != Role.OPOSITOR) {
-                    throw new RuntimeException("Todos los alumnos deben tener el rol de OPOSITOR.");
-                }
-            }
-        }
-
-        if (training.getFecha() != null && training.getFecha().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("La fecha del entrenamiento no puede ser anterior a la actual.");
+        if (training.getProfesores() == null || training.getProfesores().isEmpty()) {
+            throw new RuntimeException("Un entrenamiento debe tener al menos un profesor.");
         }
     }
-
 }

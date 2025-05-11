@@ -1,4 +1,4 @@
-package com.example.csTraining.controller.models;
+package com.example.csTraining.controller.DTO;
 
 import lombok.Getter;
 import lombok.Setter;

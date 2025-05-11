@@ -1,6 +1,7 @@
 package com.example.csTraining.controller.models;
 
 import com.example.csTraining.entity.Pago;
+import com.example.csTraining.entity.simulacros.Simulacro;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

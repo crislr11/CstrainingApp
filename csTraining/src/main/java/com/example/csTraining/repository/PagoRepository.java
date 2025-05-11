@@ -1,6 +1,5 @@
 package com.example.csTraining.repository;
 
-import com.example.csTraining.controller.models.PagoDTO;
 import com.example.csTraining.entity.Pago;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
