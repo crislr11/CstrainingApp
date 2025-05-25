@@ -28,7 +28,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints
-                        .requestMatchers(publicEndPoints()).permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         // Rutas para ADMIN
                         .requestMatchers("/api/admin/**").hasAnyRole("PROFESOR", "ADMIN")
                         .requestMatchers("/api/entrenamientos").hasAnyRole("PROFESOR", "ADMIN")
@@ -44,9 +44,9 @@ public class SecurityConfig {
                         // Rutas para PROFESOR y OPOSITOR (Acceso a simulacros y ejercicios)
                         .requestMatchers("/ejercicio/**").hasRole("PROFESOR")
 
+                        // Solo usuarios con rol OPOSITOR pueden acceder a estos endpoints
+                        .requestMatchers("/api/opositor/**").hasRole("OPOSITOR")
 
-
-                        // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -56,8 +56,4 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Métodos para las rutas públicas (sin autenticación)
-    private RequestMatcher publicEndPoints() {
-        return new OrRequestMatcher(new AntPathRequestMatcher("/api/auth/**"));
-    }
 }
