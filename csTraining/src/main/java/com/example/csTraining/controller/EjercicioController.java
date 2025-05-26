@@ -1,7 +1,7 @@
 package com.example.csTraining.controller;
 
-import com.example.csTraining.controller.DTO.EjercicioRequestDTO;
-import com.example.csTraining.controller.DTO.EjercicioResponseDTO;
+import com.example.csTraining.controller.DTO.response.EjercicioRequestDTO;
+import com.example.csTraining.controller.DTO.response.EjercicioResponseDTO;
 import com.example.csTraining.service.simulacro.EjercicioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

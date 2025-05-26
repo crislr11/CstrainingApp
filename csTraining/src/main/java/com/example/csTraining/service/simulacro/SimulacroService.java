@@ -1,8 +1,8 @@
 package com.example.csTraining.service.simulacro;
 
-import com.example.csTraining.controller.DTO.EjercicioMarcaRequestDTO;
-import com.example.csTraining.controller.DTO.SimulacroRequestDTO;
-import com.example.csTraining.controller.DTO.SimulacroResponseDTO;
+import com.example.csTraining.controller.DTO.response.EjercicioMarcaRequestDTO;
+import com.example.csTraining.controller.DTO.response.SimulacroRequestDTO;
+import com.example.csTraining.controller.DTO.response.SimulacroResponseDTO;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -1,17 +1,19 @@
 package com.example.csTraining.controller;
 
-import com.example.csTraining.controller.DTO.EntremientoOpositorRequest;
-import com.example.csTraining.controller.DTO.EntrenamientoInscripcionResponse;
-import com.example.csTraining.controller.DTO.EntrenamientoResponseDTO;
-import com.example.csTraining.controller.DTO.EntrenamientoResponseOpositor;
+import com.example.csTraining.controller.DTO.MarcaOpositorDTO;
+import com.example.csTraining.controller.DTO.response.EntremientoOpositorRequest;
+import com.example.csTraining.controller.DTO.response.EntrenamientoInscripcionResponse;
+import com.example.csTraining.controller.DTO.response.EntrenamientoResponseOpositor;
 import com.example.csTraining.exceptions.UserNotFoundException;
 import com.example.csTraining.service.OpositorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -68,5 +70,73 @@ public class OpositorController {
                     .body("¡Ups! Ocurrió un error al obtener los entrenamientos.");
         }
     }
+
+    @PostMapping
+    public ResponseEntity<?> addMarca(@RequestBody MarcaOpositorDTO dto) {
+        try {
+            opositorService.addMarca(dto);
+            return ResponseEntity.ok("Marca añadida correctamente.");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al añadir marca: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> removeMarca(@RequestBody MarcaOpositorDTO dto) {
+        try {
+            opositorService.removeMarca(dto);
+            return ResponseEntity.ok("Marca eliminada correctamente.");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado: " + e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Marca no encontrada: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar marca: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getMarcasPorFecha(
+            @PathVariable Long userId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desde,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta
+    ) {
+        try {
+            List<MarcaOpositorDTO> marcas = opositorService.getMarcasPorFecha(userId, desde, hasta);
+            return ResponseEntity.ok(marcas);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al obtener marcas: " + e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('OPOSITOR')")
+    @GetMapping("/{userId}/todas")
+    public ResponseEntity<?> getTodasLasMarcas(@PathVariable Long userId) {
+        try {
+            List<MarcaOpositorDTO> marcas = opositorService.getTodasLasMarcas(userId);
+            return ResponseEntity.ok(marcas);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al obtener marcas: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{userId}/ejercicio/{ejercicioId}")
+    public ResponseEntity<?> getMarcasPorEjercicio(@PathVariable Long userId, @PathVariable Long ejercicioId) {
+        try {
+            List<MarcaOpositorDTO> marcas = opositorService.getMarcasPorEjercicio(userId, ejercicioId);
+            return ResponseEntity.ok(marcas);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al obtener marcas: " + e.getMessage());
+        }
+    }
+
 
 }

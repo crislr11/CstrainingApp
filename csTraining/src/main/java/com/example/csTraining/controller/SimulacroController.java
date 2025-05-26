@@ -1,12 +1,9 @@
 package com.example.csTraining.controller;
 
 
-import com.example.csTraining.controller.DTO.EjercicioMarcaRequestDTO;
-import com.example.csTraining.controller.DTO.SimulacroRequestDTO;
-import com.example.csTraining.controller.DTO.SimulacroResponseDTO;
-import com.example.csTraining.entity.User;
-import com.example.csTraining.entity.simulacros.EjercicioMarca;
-import com.example.csTraining.entity.simulacros.Simulacro;
+import com.example.csTraining.controller.DTO.response.EjercicioMarcaRequestDTO;
+import com.example.csTraining.controller.DTO.response.SimulacroRequestDTO;
+import com.example.csTraining.controller.DTO.response.SimulacroResponseDTO;
 import com.example.csTraining.exceptions.ResourceNotFoundException;
 import com.example.csTraining.service.simulacro.SimulacroService;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.example.csTraining.controller.DTO;
+package com.example.csTraining.controller.DTO.response;
 
 
 import lombok.AllArgsConstructor;

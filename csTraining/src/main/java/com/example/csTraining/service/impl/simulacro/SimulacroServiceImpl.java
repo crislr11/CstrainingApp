@@ -1,10 +1,10 @@
 package com.example.csTraining.service.impl.simulacro;
 
 
-import com.example.csTraining.controller.DTO.EjercicioMarcaRequestDTO;
-import com.example.csTraining.controller.DTO.EjercicioMarcaResponseDTO;
-import com.example.csTraining.controller.DTO.SimulacroRequestDTO;
-import com.example.csTraining.controller.DTO.SimulacroResponseDTO;
+import com.example.csTraining.controller.DTO.response.EjercicioMarcaRequestDTO;
+import com.example.csTraining.controller.DTO.response.EjercicioMarcaResponseDTO;
+import com.example.csTraining.controller.DTO.response.SimulacroRequestDTO;
+import com.example.csTraining.controller.DTO.response.SimulacroResponseDTO;
 import com.example.csTraining.entity.User;
 import com.example.csTraining.entity.simulacros.Ejercicio;
 import com.example.csTraining.entity.simulacros.EjercicioMarca;

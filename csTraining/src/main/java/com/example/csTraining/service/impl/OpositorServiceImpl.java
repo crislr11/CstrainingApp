@@ -1,10 +1,11 @@
 package com.example.csTraining.service.impl;
 
-import com.example.csTraining.controller.DTO.EntrenamientoInscripcionResponse;
-import com.example.csTraining.controller.DTO.EntrenamientoResponseDTO;
-import com.example.csTraining.controller.DTO.EntrenamientoResponseOpositor;
+import com.example.csTraining.controller.DTO.MarcaOpositorDTO;
+import com.example.csTraining.controller.DTO.response.EntrenamientoInscripcionResponse;
+import com.example.csTraining.controller.DTO.response.EntrenamientoResponseOpositor;
 import com.example.csTraining.controller.DTO.UserDTO;
 import com.example.csTraining.entity.Entrenamiento;
+import com.example.csTraining.entity.MarcaOpositor;
 import com.example.csTraining.entity.User;
 import com.example.csTraining.entity.enums.Role;
 import com.example.csTraining.exceptions.UserNotFoundException;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -138,6 +140,80 @@ public class OpositorServiceImpl implements OpositorService {
         return new UserDTO(user.getId(), user.getNombreUsuario(), user.getEmail(), user.getRole());
     }
 
+    @Override
+    @Transactional
+    public void addMarca(MarcaOpositorDTO dto) {
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("Usuario con ID " + dto.getUserId() + " no encontrado"));
+        user.getMarcasOpositor().add(new MarcaOpositor(
+                dto.getEjercicioId(),
+                dto.getValor(),
+                dto.getFecha() != null ? dto.getFecha() : LocalDateTime.now()
+        ));
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void removeMarca(MarcaOpositorDTO dto) {
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("Usuario con ID " + dto.getUserId() + " no encontrado"));
+        boolean removed = user.getMarcasOpositor().removeIf(m ->
+                m.getEjercicioId().equals(dto.getEjercicioId()) &&
+                        m.getValor().equals(dto.getValor()) &&
+                        (dto.getFecha() == null || m.getFecha().equals(dto.getFecha()))
+        );
+        if (!removed) {
+            throw new IllegalStateException("No se encontró la marca especificada para eliminar.");
+        }
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<MarcaOpositorDTO> getMarcasPorFecha(Long userId, LocalDateTime desde, LocalDateTime hasta) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuario con ID " + userId + " no encontrado"));
+        return user.getMarcasOpositor().stream()
+                .filter(m -> !m.getFecha().isBefore(desde) && !m.getFecha().isAfter(hasta))
+                .map(m -> {
+                    MarcaOpositorDTO dto = new MarcaOpositorDTO();
+                    dto.setUserId(userId);
+                    dto.setEjercicioId(m.getEjercicioId());
+                    dto.setValor(m.getValor());
+                    dto.setFecha(m.getFecha());
+                    return dto;
+                }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MarcaOpositorDTO> getTodasLasMarcas(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuario con ID " + userId + " no encontrado"));
+        return user.getMarcasOpositor().stream().map(m -> {
+            MarcaOpositorDTO dto = new MarcaOpositorDTO();
+            dto.setUserId(userId);
+            dto.setEjercicioId(m.getEjercicioId());
+            dto.setValor(m.getValor());
+            dto.setFecha(m.getFecha());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MarcaOpositorDTO> getMarcasPorEjercicio(Long userId, Long ejercicioId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuario con ID " + userId + " no encontrado"));
+        return user.getMarcasOpositor().stream()
+                .filter(m -> m.getEjercicioId().equals(ejercicioId))
+                .map(m -> {
+                    MarcaOpositorDTO dto = new MarcaOpositorDTO();
+                    dto.setUserId(userId);
+                    dto.setEjercicioId(m.getEjercicioId());
+                    dto.setValor(m.getValor());
+                    dto.setFecha(m.getFecha());
+                    return dto;
+                }).collect(Collectors.toList());
+    }
 
 
 }

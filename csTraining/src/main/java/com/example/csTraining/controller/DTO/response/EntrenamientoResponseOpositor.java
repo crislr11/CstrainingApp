@@ -1,5 +1,6 @@
-package com.example.csTraining.controller.DTO;
+package com.example.csTraining.controller.DTO.response;
 
+import com.example.csTraining.controller.DTO.UserDTO;
 import com.example.csTraining.entity.enums.Lugar;
 import com.example.csTraining.entity.enums.Oposicion;
 import lombok.AllArgsConstructor;

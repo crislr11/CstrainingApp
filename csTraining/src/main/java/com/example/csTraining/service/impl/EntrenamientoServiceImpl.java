@@ -1,7 +1,7 @@
 package com.example.csTraining.service.impl;
 
 import com.example.csTraining.controller.DTO.EntrenamientoDTO;
-import com.example.csTraining.controller.DTO.EntrenamientoResponseDTO;
+import com.example.csTraining.controller.DTO.response.EntrenamientoResponseDTO;
 import com.example.csTraining.controller.DTO.UserDTO;
 import com.example.csTraining.entity.Entrenamiento;
 import com.example.csTraining.entity.User;

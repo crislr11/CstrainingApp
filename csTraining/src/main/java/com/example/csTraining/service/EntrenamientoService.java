@@ -2,7 +2,7 @@ package com.example.csTraining.service;
 
 
 import com.example.csTraining.controller.DTO.EntrenamientoDTO;
-import com.example.csTraining.controller.DTO.EntrenamientoResponseDTO;
+import com.example.csTraining.controller.DTO.response.EntrenamientoResponseDTO;
 import com.example.csTraining.entity.enums.Oposicion;
 import com.example.csTraining.entity.User;
 
