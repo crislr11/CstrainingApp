@@ -34,20 +34,27 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        // Excluir endpoints públicos (login, register, etc)
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String useremail;
 
-        if(authHeader == null || !authHeader.startsWith("Bearer")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         jwt = authHeader.substring(7);
         useremail = jwtService.getUsername(jwt);
-        if(useremail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (useremail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(useremail);
-            if (jwtService.validateToken(jwt,userDetails)){
+            if (jwtService.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -55,8 +62,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
-
         }
         filterChain.doFilter(request, response);
     }
+
 }

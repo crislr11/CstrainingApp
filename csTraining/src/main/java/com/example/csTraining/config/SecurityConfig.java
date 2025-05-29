@@ -44,6 +44,9 @@ public class SecurityConfig {
                         // Rutas para PROFESOR y OPOSITOR (Acceso a simulacros y ejercicios)
                         .requestMatchers("/ejercicio/**").hasRole("PROFESOR")
 
+                        .requestMatchers("/api/opositor/usuarios/*/foto").hasAnyRole("ADMIN", "OPOSITOR", "PROFESOR")
+                        .requestMatchers("/api/opositor/usuarios/foto/**").permitAll()
+
                         // Solo usuarios con rol OPOSITOR pueden acceder a estos endpoints
                         .requestMatchers("/api/opositor/**").hasRole("OPOSITOR")
 

@@ -15,11 +15,25 @@ import com.example.csTraining.service.OpositorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -214,6 +228,35 @@ public class OpositorServiceImpl implements OpositorService {
                     return dto;
                 }).collect(Collectors.toList());
     }
+
+    @Override
+    public void uploadUserPhoto(Long userId, MultipartFile foto) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+
+        String folder = "uploads/fotos/";
+        String filename = UUID.randomUUID() + "_" + foto.getOriginalFilename();
+        Path path = Paths.get(folder + filename);
+
+        Files.createDirectories(path.getParent());
+        Files.write(path, foto.getBytes());
+
+        user.setFotoUrl("/api/usuarios/foto/" + filename);
+        userRepository.save(user);
+    }
+
+    @Override
+    public ResponseEntity<Resource> getUserPhoto(String filename) throws MalformedURLException, FileNotFoundException {
+        Path filePath = Paths.get("uploads/fotos/").resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (resource.exists() && resource.isReadable()) {
+            return ResponseEntity.ok().contentType(MediaTypeFactory.getMediaType(resource).orElse(MediaType.APPLICATION_OCTET_STREAM)).body(resource);
+        } else {
+            throw new FileNotFoundException("Archivo no encontrado: " + filename);
+        }
+    }
+
 
 
 }

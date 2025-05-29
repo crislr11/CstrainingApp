@@ -43,7 +43,8 @@ public class User implements UserDetails {
 
     private boolean pagado;
 
-    private String foto;
+    @Column(name = "foto_url")
+    private String fotoUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pago> pagos = new ArrayList<>();

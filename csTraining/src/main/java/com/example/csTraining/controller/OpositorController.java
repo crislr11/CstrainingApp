@@ -12,9 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/opositor")
@@ -138,5 +142,25 @@ public class OpositorController {
         }
     }
 
+    @PostMapping("/usuarios/{id}/foto")
+    public ResponseEntity<?> uploadUserPhoto(@PathVariable Long id, @RequestParam("foto") MultipartFile foto) {
+        try {
+            opositorService.uploadUserPhoto(id, foto);
+            return ResponseEntity.ok("Foto subida correctamente");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error inesperado");
+        }
+    }
+
+    @GetMapping("/usuarios/foto/{filename:.+}")
+    public ResponseEntity<?> getUserPhoto(@PathVariable String filename) {
+        try {
+            return opositorService.getUserPhoto(filename);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al cargar la foto");
+        }
+    }
 
 }
