@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -138,8 +139,8 @@ public class OpositorServiceImpl implements OpositorService {
         if (entrenamientos.isEmpty()) {
             throw new RuntimeException("No tienes entrenamientos apuntados");
         }
-
         return entrenamientos.stream()
+                .filter(ent -> ent.getFecha() != null && ent.getFecha().isAfter(LocalDateTime.now()))
                 .map(ent -> new EntrenamientoResponseOpositor(
                         ent.getId(),
                         ent.getOposicion(),

@@ -31,7 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Rutas para ADMIN
                         .requestMatchers("/api/admin/**").hasAnyRole("PROFESOR", "ADMIN")
-                        .requestMatchers("/api/entrenamientos").hasAnyRole("PROFESOR", "ADMIN")
+                        .requestMatchers("/api/entrenamientos").hasAnyRole("PROFESOR", "ADMIN","OPOsITOR")
                         .requestMatchers("/api/pagos/").hasRole("ADMIN")
 
 
