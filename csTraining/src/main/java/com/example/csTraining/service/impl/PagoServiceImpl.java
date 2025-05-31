@@ -59,12 +59,12 @@ public class PagoServiceImpl implements PagoService {
 
 
     // Obtener el historial de pagos de un usuario
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OPOSITOR')")
     public List<PagoDTO> obtenerHistorialPagos(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con ID: " + userId));
 
-        List<Pago> pagos = user.getPagos(); // o si usas JPA: pagoRepository.findByUserId(userId);
+        List<Pago> pagos = user.getPagos();
 
         return pagos.stream()
                 .map(pago -> new PagoDTO(pago.getId(), pago.getMonto(), pago.getFechaPago(),pago.getUser().getId()))
@@ -94,7 +94,7 @@ public class PagoServiceImpl implements PagoService {
         userRepository.save(user);
     }
 
-    // Restablecer el estado de todos los usuarios a "no pagado" al final de cada mes
+
     @Override
     public void restablecerEstadoPagado() {
         List<User> usuarios = userRepository.findAll();

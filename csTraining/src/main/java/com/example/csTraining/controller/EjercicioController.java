@@ -59,8 +59,8 @@ public class EjercicioController {
         }
     }
 
-    // Obtener todos los ejercicios - Solo para PROFESORES
-    @PreAuthorize("hasRole('PROFESOR')")
+    // Obtener todos los ejercicios
+    @PreAuthorize("hasAnyRole('OPOSITOR','PROFESOR')")
     @GetMapping
     public ResponseEntity<?> listarEjercicios() {
         try {
