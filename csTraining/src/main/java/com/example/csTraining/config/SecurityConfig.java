@@ -29,11 +29,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // Endpoints de ranking - solo para OPOSITOR
+                        .requestMatchers("/api/ranking/**").hasRole("OPOSITOR")
+
                         // Rutas para ADMIN
                         .requestMatchers("/api/admin/**").hasAnyRole("PROFESOR", "ADMIN")
-                        .requestMatchers("/api/entrenamientos").hasAnyRole("PROFESOR", "ADMIN","OPOsITOR")
+                        .requestMatchers("/api/entrenamientos").hasAnyRole("PROFESOR", "ADMIN","OPOSITOR")
                         .requestMatchers("/api/pagos/").hasRole("ADMIN")
-
 
                         // Acceso de un OPOSITOR a sus simulacros
                         .requestMatchers("/api/simulacro/usuario/**").hasAnyRole("PROFESOR", "OPOSITOR")
@@ -58,5 +61,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }

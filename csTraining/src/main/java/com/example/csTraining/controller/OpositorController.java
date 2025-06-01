@@ -1,7 +1,7 @@
 package com.example.csTraining.controller;
 
 import com.example.csTraining.controller.DTO.MarcaOpositorDTO;
-import com.example.csTraining.controller.DTO.response.EntremientoOpositorRequest;
+import com.example.csTraining.controller.DTO.request.EntremientoOpositorRequest;
 import com.example.csTraining.controller.DTO.response.EntrenamientoInscripcionResponse;
 import com.example.csTraining.controller.DTO.response.EntrenamientoResponseOpositor;
 import com.example.csTraining.exceptions.UserNotFoundException;
@@ -14,8 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;

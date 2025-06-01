@@ -1,8 +1,8 @@
 package com.example.csTraining.controller;
 
 
-import com.example.csTraining.controller.DTO.response.EjercicioMarcaRequestDTO;
-import com.example.csTraining.controller.DTO.response.SimulacroRequestDTO;
+import com.example.csTraining.controller.DTO.request.EjercicioMarcaRequestDTO;
+import com.example.csTraining.controller.DTO.request.SimulacroRequestDTO;
 import com.example.csTraining.controller.DTO.response.SimulacroResponseDTO;
 import com.example.csTraining.exceptions.ResourceNotFoundException;
 import com.example.csTraining.service.simulacro.SimulacroService;

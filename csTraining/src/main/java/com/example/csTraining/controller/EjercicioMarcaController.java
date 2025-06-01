@@ -1,6 +1,6 @@
 package com.example.csTraining.controller;
 
-import com.example.csTraining.controller.DTO.response.EjercicioMarcaRequestDTO;
+import com.example.csTraining.controller.DTO.request.EjercicioMarcaRequestDTO;
 import com.example.csTraining.controller.DTO.response.EjercicioMarcaResponseDTO;
 import com.example.csTraining.service.simulacro.EjercicioMarcaService;
 import com.example.csTraining.service.simulacro.EjercicioService;

@@ -1,7 +1,7 @@
 package com.example.csTraining.service.impl.simulacro;
 
 
-import com.example.csTraining.controller.DTO.response.EjercicioRequestDTO;
+import com.example.csTraining.controller.DTO.request.EjercicioRequestDTO;
 import com.example.csTraining.controller.DTO.response.EjercicioResponseDTO;
 import com.example.csTraining.entity.simulacros.Ejercicio;
 import com.example.csTraining.repository.simulacros.EjercicioRepository;

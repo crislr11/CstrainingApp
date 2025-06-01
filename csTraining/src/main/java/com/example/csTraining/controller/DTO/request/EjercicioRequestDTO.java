@@ -1,4 +1,4 @@
-package com.example.csTraining.controller.DTO.response;
+package com.example.csTraining.controller.DTO.request;
 
 import lombok.*;
 

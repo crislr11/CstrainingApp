@@ -28,7 +28,7 @@ public class Simulacro {
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_id")
-    @JsonManagedReference  // Cambié aquí a JsonManagedReference
+    @JsonManagedReference
     private User user;
 
     @OneToMany(mappedBy = "simulacro", cascade = CascadeType.ALL, orphanRemoval = true)

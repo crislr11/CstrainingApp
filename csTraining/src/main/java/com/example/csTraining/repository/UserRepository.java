@@ -1,4 +1,5 @@
 package com.example.csTraining.repository;
+import com.example.csTraining.entity.enums.Oposicion;
 import com.example.csTraining.entity.enums.Role;
 import com.example.csTraining.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,5 +19,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByRole(Role role);
 
-
+    List<User> findByOposicion(Oposicion oposicion);
 }

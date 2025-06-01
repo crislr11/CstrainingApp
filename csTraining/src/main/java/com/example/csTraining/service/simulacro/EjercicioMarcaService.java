@@ -1,6 +1,6 @@
 package com.example.csTraining.service.simulacro;
 
-import com.example.csTraining.controller.DTO.response.EjercicioMarcaRequestDTO;
+import com.example.csTraining.controller.DTO.request.EjercicioMarcaRequestDTO;
 import com.example.csTraining.controller.DTO.response.EjercicioMarcaResponseDTO;
 
 import java.util.List;
