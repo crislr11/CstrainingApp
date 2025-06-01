@@ -47,7 +47,7 @@ public class PagoServiceImpl implements PagoService {
         Pago pago = new Pago();
         pago.setUser(user);
         pago.setFechaPago(LocalDate.now());
-        pago.setMonto(35.0);
+        pago.setMonto(30.0);
 
         pago.setUser(user);
 
@@ -89,7 +89,7 @@ public class PagoServiceImpl implements PagoService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con ID: " + userId));
 
-        user.setCreditos(14);
+        user.setCreditos(15);
         user.setPagado(true);
         userRepository.save(user);
     }
