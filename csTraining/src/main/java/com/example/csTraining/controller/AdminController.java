@@ -74,9 +74,11 @@ public class AdminController {
             adminService.toggleUserStatus(id);
             return ResponseEntity.ok("Estado del usuario cambiado");
         } catch (UserNotFoundException ex) {
-            return handleUserNotFoundException(ex);
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
-            return handleGenericException(ex);
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
