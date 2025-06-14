@@ -4,6 +4,7 @@ import com.example.csTraining.entity.enums.Oposicion;
 import com.example.csTraining.entity.enums.Role;
 import com.example.csTraining.entity.simulacros.Simulacro;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,18 +48,18 @@ public class User implements UserDetails {
     private String fotoUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Pago> pagos = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @JsonIgnore
     private List<Simulacro> simulacros = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "user_ejercicio_marcas", joinColumns = @JoinColumn(name = "user_id"))
+    @JsonIgnore
     private List<MarcaOpositor> marcasOpositor = new ArrayList<>();
 
-
-    // Implementación de UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(() -> "ROLE_" + role.name());

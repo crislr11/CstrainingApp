@@ -1,3 +1,4 @@
+// AdminController.java
 package com.example.csTraining.controller;
 
 import com.example.csTraining.entity.User;
@@ -19,6 +20,7 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    // Lista todos los usuarios
     @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @GetMapping("/listar")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -31,6 +33,7 @@ public class AdminController {
         }
     }
 
+    // Busca usuario por ID
     @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
     @GetMapping("/buscar/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
@@ -41,6 +44,7 @@ public class AdminController {
         }
     }
 
+    // Actualiza usuario preservando información existente
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
@@ -54,12 +58,13 @@ public class AdminController {
         }
     }
 
+    // Elimina físicamente el usuario y todos sus datos
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             adminService.deleteUser(id);
-            return ResponseEntity.ok("Usuario eliminado");
+            return ResponseEntity.ok("Usuario eliminado completamente");
         } catch (UserNotFoundException ex) {
             return handleUserNotFoundException(ex);
         } catch (Exception ex) {
@@ -67,6 +72,7 @@ public class AdminController {
         }
     }
 
+    // Cambia estado activo/inactivo
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/cambiarEstado")
     public ResponseEntity<?> toggleUserStatus(@PathVariable Long id) {
@@ -82,6 +88,7 @@ public class AdminController {
         }
     }
 
+    // Actualiza créditos del usuario
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/actualizarCreditos")
     public ResponseEntity<?> updateUserCredits(@PathVariable Long id, @RequestBody int newCredits) {

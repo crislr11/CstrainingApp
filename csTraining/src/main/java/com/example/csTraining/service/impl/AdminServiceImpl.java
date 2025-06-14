@@ -1,3 +1,4 @@
+// AdminServiceImpl.java
 package com.example.csTraining.service.impl;
 
 import com.example.csTraining.entity.User;
@@ -5,6 +6,7 @@ import com.example.csTraining.exceptions.UserNotFoundException;
 import com.example.csTraining.repository.UserRepository;
 import com.example.csTraining.service.AdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
 
+    // Obtiene todos los usuarios
     @Override
     public List<User> getAllUsers() {
         try {
@@ -27,6 +30,7 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+    // Busca usuario por ID
     @Override
     public User getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
@@ -37,38 +41,73 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+    // Actualiza usuario preservando campos no modificados
     @Override
     @Transactional
     public User updateUser(Long id, User userDetails) {
-        User user = userRepository.findById(id)
+        User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuario con ID " + id + " no encontrado"));
 
         try {
-            user.setNombreUsuario(userDetails.getNombreUsuario());
-            user.setCreditos(userDetails.getCreditos());
-            user.setPagado(userDetails.isPagado());
+            // Actualizar solo campos no nulos
+            if (userDetails.getNombreUsuario() != null) {
+                existingUser.setNombreUsuario(userDetails.getNombreUsuario());
+            }
+            if (userDetails.getEmail() != null) {
+                existingUser.setEmail(userDetails.getEmail());
+            }
+            if (userDetails.getRole() != null) {
+                existingUser.setRole(userDetails.getRole());
+            }
+            if (userDetails.getOposicion() != null) {
+                existingUser.setOposicion(userDetails.getOposicion());
+            }
+            if (userDetails.getFotoUrl() != null) {
+                existingUser.setFotoUrl(userDetails.getFotoUrl());
+            }
 
-            return userRepository.save(user);
+            // Campos primitivos siempre se actualizan
+            existingUser.setCreditos(userDetails.getCreditos());
+            existingUser.setPagado(userDetails.isPagado());
+            existingUser.setActive(userDetails.isActive());
+
+            return userRepository.save(existingUser);
         } catch (Exception e) {
             throw new RuntimeException("Error al actualizar el usuario: " + e.getMessage(), e);
         }
     }
 
-
+    // Elimina físicamente el usuario y todas sus relaciones
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         try {
-            if (!userRepository.existsById(id)) {
-                throw new UserNotFoundException("No se puede eliminar: Usuario con ID " + id + " no encontrado");
-            }
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new UserNotFoundException("Usuario con ID " + id + " no encontrado"));
+
+            // Limpiar todas las relaciones para evitar errores de integridad
+            user.getPagos().clear();
+            user.getSimulacros().clear();
+            user.getMarcasOpositor().clear();
+
+            // Guardar cambios primero para limpiar relaciones
+            userRepository.save(user);
+
+            // Ahora eliminar el usuario
             userRepository.deleteById(id);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Error de integridad al eliminar usuario: " + e.getMessage(), e);
         } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException("No se puede eliminar: Usuario con ID " + id + " no encontrado");
+            throw new UserNotFoundException("Usuario con ID " + id + " no encontrado");
+        } catch (UserNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error al eliminar el usuario: " + e.getMessage(), e);
         }
     }
 
+    // Cambia estado activo/inactivo del usuario
     @Override
     @Transactional
     public void toggleUserStatus(Long id) {
@@ -83,6 +122,7 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+    // Actualiza solo los créditos del usuario
     @Override
     @Transactional
     public void updateUserCredits(Long id, int newCredits) {
@@ -97,3 +137,5 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 }
+
+

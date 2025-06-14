@@ -71,14 +71,19 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://127.0.0.1:4200"));
+        config.setAllowedOrigins(Arrays.asList(
+                "http://35.181.152.177:4200",
+                "http://127.0.0.1:4200",
+                "http://localhost:4200"
+        ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
-        config.setMaxAge(3600L); // 1 hour for preflight cache
+        config.setMaxAge(3600L); // 1 hora para cache preflight
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }
